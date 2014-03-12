@@ -969,6 +969,14 @@ typedef struct {
   RIL_CDMA_InformationRecord infoRec[RIL_CDMA_MAX_NUMBER_OF_INFO_RECS];
 } RIL_CDMA_InformationRecords;
 
+typedef enum{
+	AUDIO_MODE_EARPHONE=0,
+	AUDIO_MODE_SPEAKER,	
+	AUDIO_MODE_HPWITHMIC,		
+	AUDIO_MODE_BT	,	
+	AUDIO_MODE_HPNOMIC,		
+	AUDIO_MODE_STOPPHONE,		
+}Modem_Audiotype;
 /**
  * RIL_REQUEST_GET_SIM_STATUS
  *
@@ -3532,13 +3540,16 @@ typedef struct {
  * ((int *)response)[0] is registration state:
  *              0 - Not registered
  *              1 - Registered
- * ((int *)response)[1] is bitmap of the supported services:
- *          & 0x1 - SMS supported
  *
- * If IMS is registered and supports SMS, then ((int *) response)[2]
+ * If ((int*)response)[0] is = 1, then ((int *) response)[1]
  * must follow with IMS SMS format:
  *
- * ((int *) response)[2] is of type const RIL_IMS_SMS_Format
+ * ((int *) response)[1] is of type RIL_RadioTechnologyFamily
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
  */
 #define RIL_REQUEST_IMS_REGISTRATION_STATE 112
 
@@ -3565,6 +3576,10 @@ typedef struct {
  */
 #define RIL_REQUEST_IMS_SEND_SMS 113
 
+#define RIL_REQUEST_SET_AUDIO_MODE 114
+#define RIL_REQUEST_GET_AUDIO_MODE 115
+#define RIL_REQUEST_SET_AUDIO_MODE_VOLUME 116
+#define RIL_REQUEST_GET_AUDIO_MODE_VOLUME 117
 /***********************************************************************/
 
 
@@ -4055,22 +4070,18 @@ typedef struct {
  */
 #define RIL_UNSOL_CELL_INFO_LIST 1036
 
-/*
+/**
  * RIL_UNSOL_RESPONSE_IMS_NETWORK_STATE_CHANGED
  *
  * Called when IMS registration state has changed
  *
- * "data" is int *
- * ((int *)response)[0] is registration state:
- *              0 - Not registered
- *              1 - Registered
- * ((int *)response)[1] is bitmap of the services supported:
- *          & 0x1 - SMS supported
+ * To get IMS registration state and IMS SMS format, callee needs to invoke the
+ * following request on main thread:
  *
- * If IMS is registered and supports SMS, then ((int *) response)[2]
- * must follow with IMS SMS format:
+ * RIL_REQUEST_IMS_REGISTRATION_STATE
  *
- * ((int *) response)[2] is of type const RIL_IMS_SMS_Format
+ * "data" is NULL
+ *
  */
 #define RIL_UNSOL_RESPONSE_IMS_NETWORK_STATE_CHANGED 1037
 
